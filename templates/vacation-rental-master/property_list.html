@@ -1,0 +1,22 @@
+<h2>My Properties</h2>
+
+<a href="{% url 'property-add' %}">Add Property</a>
+
+<hr>
+
+{% for property in object_list %}
+    <div>
+        <h3>{{ property.title }}</h3>
+        <p>{{ property.location }}</p>
+        <p>Rent: {{ property.rent }}</p>
+
+        <!-- IMPORTANT PART -->
+        <a href="{% url 'property-detail' property.pk %}">View</a>
+        <a href="{% url 'property-edit' property.pk %}">Edit</a>
+        <a href="{% url 'property-delete' property.pk %}">Delete</a>
+
+        <hr>
+    </div>
+{% empty %}
+    <p>No properties found.</p>
+{% endfor %}

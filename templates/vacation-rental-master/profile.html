@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RentEase | Profile</title>
+<style>
+body{font-family:Arial;background:#f4f6f9}
+.container{max-width:500px;margin:30px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:6px}
+button{background:#ff5a5f;color:#fff;border:none;padding:10px 18px;border-radius:6px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<button onclick="openProfileModal()">Profile</button>
+
+<!-- Profile Modal -->
+<div id="profileModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000;">
+  <div style="background:#fff;width:400px;margin:100px auto;padding:20px;border-radius:12px;position:relative;">
+    <h3>Edit Profile</h3>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <input type="text" name="username" value="{{ user.username }}" placeholder="Username" required>
+      <input type="email" name="email" value="{{ user.email }}" placeholder="Email" required>
+      <input type="text" name="phone" value="{{ profile.phone }}" placeholder="Phone">
+      <textarea name="address" placeholder="Address">{{ profile.address }}</textarea>
+      <input type="text" name="city" value="{{ profile.city }}" placeholder="City">
+      <input type="text" name="state" value="{{ profile.state }}" placeholder="State">
+      <input type="text" name="pincode" value="{{ profile.pincode }}" placeholder="Pincode">
+      <input type="text" name="occupation" value="{{ profile.occupation }}" placeholder="Occupation">
+      <input type="number" name="family_size" value="{{ profile.family_size }}" placeholder="Family Size">
+      <select name="purpose">
+         <option value="Rent" {% if profile.purpose == "Rent" %}selected{% endif %}>Rent</option>
+         <option value="Buy" {% if profile.purpose == "Buy" %}selected{% endif %}>Buy</option>
+      </select>
+      <input type="number" name="budget" value="{{ profile.budget }}" placeholder="Budget">
+      <input type="text" name="preferred_type" value="{{ profile.preferred_type }}" placeholder="Preferred Home Type">
+      <input type="file" name="image">
+
+      <br><br>
+      <button type="submit">Save Profile</button>
+      <button type="button" onclick="closeProfileModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+<script>
+function openProfileModal(){
+  document.getElementById("profileModal").style.display = "block";
+}
+function closeProfileModal(){
+  document.getElementById("profileModal").style.display = "none";
+}
+</script>
+
+</body>
+</html>

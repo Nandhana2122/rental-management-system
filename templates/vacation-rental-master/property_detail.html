@@ -1,0 +1,502 @@
+{% comment %} {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ home.title }} | RentEase</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:Poppins,sans-serif;
+    background:#f4f6fb;
+}
+.container{
+    max-width:1100px;
+    margin:40px auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+.slider{
+    display:flex;
+    overflow-x:auto;
+    gap:15px;
+}
+.slider img{
+    width:320px;
+    height:220px;
+    object-fit:cover;
+    border-radius:10px;
+}
+.title{
+    font-size:28px;
+    margin-top:20px;
+}
+.price{
+    font-size:22px;
+    color:#2563eb;
+    margin:10px 0;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+    margin:20px 0;
+}
+.card{
+    background:#f8fafc;
+    padding:12px;
+    border-radius:8px;
+}
+.back{
+    display:inline-block;
+    margin-top:20px;
+    text-decoration:none;
+    background:#2563eb;
+    color:white;
+    padding:10px 18px;
+    border-radius:6px;
+}
+.video-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.video-content {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    position: relative;
+    width: 650px;
+}
+
+.close-btn {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.video-chat-container {
+    display: flex;
+    gap: 15px;
+}
+
+.video-section video {
+    width: 350px;
+    border-radius: 10px;
+    background: black;
+}
+
+.chat-section {
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-box {
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 8px;
+    overflow-y: auto;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.chat-msg {
+    background: #f1f1f1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.chat-input {
+    display: flex;
+    gap: 6px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.chat-input button {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="slider">
+        <img src="{{ home.image1.url }}">
+        <img src="{{ home.image2.url }}">
+        <img src="{{ home.image3.url }}">
+        <img src="{{ home.image4.url }}">
+        <img src="{{ home.image5.url }}">
+    </div>
+
+    <h1 class="title">{{ home.title }}</h1>
+    <div class="price">₹ {{ home.rent }} / Month</div>
+    <button class="btn btn-success" onclick="startVideoChat()">📹 Live Video Tour</button>
+    <div id="videoModal" class="video-modal">
+    <div class="video-content">
+        <span class="close-btn" onclick="closeVideo()">×</span>
+
+        <div class="video-chat-container">
+            <div class="video-section">
+                <video id="video" autoplay playsinline></video>
+            </div>
+
+            <div class="chat-section">
+                <h5>Live Chat</h5>
+                <div id="chatBox" class="chat-box"></div>
+
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Type message..." />
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <div class="grid">
+        <div class="card">📍 Location: {{ home.location }}</div>
+        <div class="card">🛏 Bedrooms: {{ home.bedrooms }}</div>
+        <div class="card">🛁 Bathrooms: {{ home.bathrooms }}</div>
+        <div class="card">🛋 Hall: {{ home.hall }}</div>
+        <div class="card">🍳 Kitchen: {{ home.kitchen }}</div>
+        <div class="card">🌤 Balcony: {{ home.balcony|yesno:"Yes,No" }}</div>
+        <div class="card">🚗 Parking: {{ home.parking|yesno:"Yes,No" }}</div>
+    </div>
+
+    <p>{{ home.description }}</p>
+
+    <a href="{% url 'properties' %}" class="back">⬅ Back to Properties</a>
+
+</div>
+
+</body>
+<script>
+async function startVideoChat() {
+    const modal = document.getElementById("videoModal");
+    const video = document.getElementById("video");
+
+    modal.style.display = "flex";
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+    });
+
+    video.srcObject = stream;
+}
+
+function closeVideo() {
+    const modal = document.getElementById("videoModal");
+    const video = document.getElementById("video");
+
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+    }
+
+    modal.style.display = "none";
+}
+
+function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const box = document.getElementById("chatBox");
+
+    if (input.value.trim() === "") return;
+
+    const msg = document.createElement("div");
+    msg.className = "chat-msg";
+    msg.innerText = "You: " + input.value;
+
+    box.appendChild(msg);
+    box.scrollTop = box.scrollHeight;
+    input.value = "";
+}
+</script>
+
+</html> {% endcomment %}
+
+
+
+
+{% comment %} 
+ {% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ home.title }}</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container my-5">
+
+    <div class="row">
+        <!-- LEFT IMAGES SLIDER -->
+        <div class="col-md-7">
+
+            {% if home.images.all %}
+                <div id="propertyCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for img in home.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ img.image.url }}" class="d-block w-100 rounded shadow" alt="Property Image">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            {% else %}
+                <img src="{% static 'images/no-image.png' %}" class="img-fluid rounded shadow" alt="No Image">
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT DETAILS -->
+        <div class="col-md-5">
+            <div class="card shadow border-0">
+                <div class="card-body">
+
+                    <h3>{{ home.title }}</h3>
+                    <p class="text-muted">{{ home.location }}</p>
+
+                    <h4 class="text-success">
+                        ₹ {{ home.rent }} / month
+                    </h4>
+
+                    <hr>
+
+                    <p>🛏 Rooms: {{ home.bedrooms }}</p>
+                    <p>🛁 Bathrooms: {{ home.bathrooms }}</p>
+                    <p>🚗 Parking: {{ home.parking|yesno:"Yes,No" }}</p>
+                    <p>🌿 Balcony: {{ home.balcony|yesno:"Yes,No" }}</p>
+                    <p>📶 Wifi: {{ home.wifi|yesno:"Available,Not Available" }}</p>
+                    <p>🧺 Washing Machine: {{ home.washing_machine|yesno:"Yes,No" }}</p>
+
+                    <p class="mt-3 text-muted">
+                        {{ home.description }}
+                    </p>
+
+                    <!-- ✅ PAY RENT BUTTON -->
+                    <a href="{% url 'pay_rent' home.id %}"
+                       class="btn btn-dark w-100 mt-4">
+                        Pay Rent
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>  {% endcomment %}
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{ home.title }}</title>
+
+<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+<style>
+body{
+    background:#f6f7fb;
+}
+
+.property-card{
+    border-radius:15px;
+}
+
+.property-title{
+    font-weight:700;
+}
+
+.price-box{
+    background:#198754;
+    color:white;
+    padding:10px 20px;
+    border-radius:10px;
+    display:inline-block;
+    font-size:22px;
+}
+
+.feature-box p{
+    margin-bottom:6px;
+    font-size:15px;
+}
+
+.carousel img{
+    height:420px;
+    object-fit:cover;
+}
+
+.btn-dark{
+    border-radius:10px;
+}
+
+.btn-warning, .btn-danger{
+    border-radius:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container my-5">
+
+<div class="row g-4">
+
+<!-- PROPERTY IMAGES -->
+<div class="col-md-7">
+
+{% if home.images.all %}
+<div id="propertyCarousel" class="carousel slide shadow rounded" data-bs-ride="carousel">
+
+<div class="carousel-inner">
+
+{% for img in home.images.all %}
+<div class="carousel-item {% if forloop.first %}active{% endif %}">
+<img src="{{ img.image.url }}" class="d-block w-100 rounded">
+</div>
+{% endfor %}
+
+</div>
+
+<button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+<span class="carousel-control-prev-icon"></span>
+</button>
+
+<button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+<span class="carousel-control-next-icon"></span>
+</button>
+
+</div>
+
+{% else %}
+
+<img src="{{ home.image.url }}" class="img-fluid rounded shadow">
+
+{% endif %}
+
+</div>
+
+
+<!-- PROPERTY DETAILS -->
+<div class="col-md-5">
+
+<div class="card property-card shadow border-0">
+
+<div class="card-body">
+
+<h3 class="property-title">{{ home.title }}</h3>
+
+<p class="text-muted mb-2">📍 {{ home.location }}</p>
+
+<div class="price-box mb-3">
+₹ {{ home.rent }} / month
+</div>
+
+<hr>
+
+<div class="feature-box">
+
+<p>🛏 Bedrooms : <b>{{ home.bedrooms }}</b></p>
+<p>🛁 Bathrooms : <b>{{ home.bathrooms }}</b></p>
+<p>🚗 Parking : <b>{{ home.parking|yesno:"Yes,No" }}</b></p>
+<p>🌿 Balcony : <b>{{ home.balcony|yesno:"Yes,No" }}</b></p>
+<p>📶 Wifi : <b>{{ home.wifi|yesno:"Available,Not Available" }}</b></p>
+<p>🧺 Washing Machine : <b>{{ home.washing_machine|yesno:"Yes,No" }}</b></p>
+
+</div>
+
+<hr>
+
+<p class="text-muted">
+{{ home.description }}
+</p>
+
+
+<!-- PAY RENT BUTTON -->
+
+<a href="{% url 'pay_rent' home.id %}" class="btn btn-dark w-100 mt-3">
+💳 Pay Rent
+</a>
+
+
+<!-- OWNER BUTTONS -->
+
+{% if user.is_authenticated and home.user == user %}
+
+<div class="mt-3">
+
+<a href="{% url 'edit_property' home.id %}" class="btn btn-warning w-100 mb-2">
+✏ Edit Property
+</a>
+
+<a href="{% url 'delete_property' home.id %}" class="btn btn-danger w-100">
+🗑 Delete Property
+</a>
+
+</div>
+
+{% endif %}
+
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+</body>
+</html>

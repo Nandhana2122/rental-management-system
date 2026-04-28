@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify OTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(120deg, #6a11cb, #2575fc);
+            font-family: Arial, sans-serif;
+        }
+        .otp-box {
+            background: #fff;
+            padding: 30px;
+            width: 360px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .otp-box h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .otp-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .otp-box button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            background: #28a745;
+            color: white;
+        }
+        .error-msg { color: red; margin-bottom: 10px; }
+        .success-msg { color: green; margin-bottom: 10px; }
+        .back-link { margin-top: 15px; }
+        .back-link a { color: #2575fc; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="otp-box">
+    <h2>Verify OTP</h2>
+
+    <!-- Django messages + Auto Redirect -->
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <p class="error-msg">{{ message }}</p>
+            {% else %}
+                <p class="success-msg">{{ message }}</p>
+
+                <script>
+                    setTimeout(function () {
+                        window.location.href = "{% url 'login' %}";
+                    }, 800);
+                </script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- OTP form -->
+    <form method="post" action="{% url 'verify_otp' %}">
+        {% csrf_token %}
+        <input type="text" name="otp" placeholder="Enter OTP" required>
+        <button type="submit">Verify OTP</button>
+    </form>
+
+    <p>OTP valid for 5 minutes.</p>
+
+    <!-- Back to login -->
+    <p class="back-link">
+        <a href="{% url 'login' %}">Back to Login</a>
+    </p>
+</div>
+</body>
+</html>

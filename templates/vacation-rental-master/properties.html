@@ -1,0 +1,330 @@
+{% comment %} 
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RentEase | Properties</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <style>
+    body { font-family:Poppins,sans-serif; background:#f5f7fb; }
+
+    .page-header {
+      background:linear-gradient(120deg,#0f172a,#1e293b);
+      color:#fff;
+      padding:80px 0;
+      text-align:center;
+    }
+
+    .card {
+      border:none;
+      border-radius:18px;
+      box-shadow:0 10px 25px rgba(0,0,0,.08);
+      transition:.3s;
+    }
+
+    .card:hover { transform:translateY(-6px); }
+
+    .card img {
+      height:220px;
+      object-fit:cover;
+      border-radius:18px 18px 0 0;
+    }
+
+    .btn-sm {
+      font-size: 0.8rem;
+    }
+
+    .action-btns {
+      display:flex;
+      justify-content:space-between;
+      gap:0.5rem;
+      margin-top:0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<section class="page-header">
+  <h1>Available Homes</h1>
+  <p>Premium rental homes curated for you</p>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+
+      {% for i in "12345678901234567890"|make_list %}
+      <div class="col-md-4">
+        <div class="card">
+          <img src="{% static 'images/home' %}{{ forloop.counter }}.jpg">
+          <div class="card-body">
+            <h5>Luxury Home {{ forloop.counter }}</h5>
+            <p class="text-muted">City Center</p>
+            <p><strong>₹ {{ forloop.counter }}0,000 / month</strong></p>
+
+            <!-- Chat & Video Call Buttons -->
+            <div class="action-btns">
+              <a href="{% url 'chat' forloop.counter %}" class="btn btn-primary btn-sm w-50">
+                💬 Chat
+               </a>
+              <a href="{% url 'video_call_owner' forloop.counter %}" class="btn btn-danger btn-sm w-50">
+               🎥 Video Call
+              </a>
+            </div>
+
+            <a href="{% url 'property_detail' forloop.counter %}" class="btn btn-dark btn-sm w-100 mt-2">
+              View Details
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html> {% endcomment %}
+
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Properties</title>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+
+body{
+font-family:Arial, Helvetica, sans-serif;
+background:#f4f6f9;
+margin:0;
+}
+
+/* Container */
+
+.container{
+width:90%;
+margin:auto;
+padding-top:30px;
+}
+
+/* Header */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+h2{
+color:#2c3e50;
+}
+
+/* Add Property Button */
+
+.add-property{
+background:#27ae60;
+color:white;
+padding:8px 15px;
+border-radius:6px;
+text-decoration:none;
+font-size:14px;
+}
+
+.add-property:hover{
+background:#219150;
+}
+
+/* Grid (3 per row) */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:25px;
+}
+
+/* Card */
+
+.card{
+background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+box-shadow:0 10px 20px rgba(0,0,0,0.15);
+}
+
+/* Image */
+
+.card img{
+width:100%;
+height:200px;
+object-fit:cover;
+}
+
+/* Content */
+
+.content{
+padding:15px;
+}
+
+.title{
+font-size:18px;
+font-weight:bold;
+color:#2c3e50;
+}
+
+.location{
+color:#6c757d;
+font-size:14px;
+margin-bottom:8px;
+}
+
+.price{
+color:#28a745;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+/* Icon Buttons */
+
+.btn-row{
+display:flex;
+gap:8px;
+margin-top:10px;
+}
+
+.icon-btn{
+width:34px;
+height:34px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:6px;
+color:white;
+text-decoration:none;
+font-size:16px;
+}
+
+/* Button Colors */
+
+.chat{
+background:#0d6efd;
+}
+
+.video{
+background:#dc3545;
+}
+
+.edit{
+background:#f59e0b;
+}
+
+.delete{
+background:#6c757d;
+}
+
+/* View Button */
+
+.view-btn{
+display:block;
+margin-top:10px;
+background:#20c997;
+padding:7px;
+text-align:center;
+border-radius:6px;
+color:white;
+text-decoration:none;
+font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h2>Available Properties</h2>
+
+{% if request.user.is_authenticated %}
+<a href="{% url 'add_property' %}" class="add-property">+ Add Property</a>
+{% endif %}
+
+</div>
+
+<div class="grid">
+
+{% for home in homes %}
+
+<div class="card">
+
+<img src="{% static 'images/' %}{{ home.image }}">
+
+<div class="content">
+
+<div class="title">{{ home.title }}</div>
+
+<div class="location">{{ home.location }}</div>
+
+<div class="price">₹ {{ home.rent }} / month</div>
+
+<div class="btn-row">
+
+<a href="{% url 'chat_with_owner' home.id %}" class="icon-btn chat">
+<i class="bi bi-chat"></i>
+</a>
+
+<a href="{% url 'video_call' home.id %}" class="icon-btn video">
+<i class="bi bi-camera-video"></i>
+</a>
+
+{% if request.user.is_authenticated %}
+
+<a href="{% url 'edit_property' home.id %}" class="icon-btn edit">
+<i class="bi bi-pencil"></i>
+</a>
+
+<a href="{% url 'delete_property' home.id %}" class="icon-btn delete">
+<i class="bi bi-trash"></i>
+</a>
+
+{% endif %}
+
+</div>
+
+<a href="{% url 'property_detail' home.id %}" class="view-btn">
+View Details
+</a>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</body>
+</html>

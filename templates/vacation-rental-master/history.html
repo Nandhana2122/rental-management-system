@@ -1,0 +1,19 @@
+<h2>My Payments</h2>
+
+<table border="1">
+<tr>
+<th>Property</th>
+<th>Amount</th>
+<th>Method</th>
+<th>Date</th>
+</tr>
+
+{% for p in payments %}
+<tr>
+<td>{{ p.property.title }}</td>
+<td>₹{{ p.amount }}</td>
+<td>{{ p.method }}</td>
+<td>{{ p.created_at }}</td>
+</tr>
+{% endfor %}
+</table>

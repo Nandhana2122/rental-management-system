@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Property Management</title>
+</head>
+<body>
+
+<h2>My Properties</h2>
+
+<!-- Add Property Form -->
+<h3>Add Property</h3>
+<form id="addForm">
+    <input type="text" id="title" placeholder="Title" required><br><br>
+    <input type="text" id="location" placeholder="Location" required><br><br>
+    <input type="number" id="rent" placeholder="Rent" required><br><br>
+    <textarea id="description" placeholder="Description"></textarea><br><br>
+    <button type="submit">Add Property</button>
+</form>
+
+<hr>
+
+<h3>Property List</h3>
+<div id="propertyList"></div>
+
+<script>
+
+// ---------------- LOAD PROPERTIES (GET) ----------------
+function loadProperties() {
+    fetch("/properties/")
+    .then(response => response.json())
+    .then(data => {
+        let html = "";
+        data.forEach(property => {
+            html += `
+                <div>
+                    <h4>${property.title}</h4>
+                    <p>${property.location}</p>
+                    <p>Rent: ${property.rent}</p>
+
+                    <button onclick="editProperty(${property.id})">Edit</button>
+                    <button onclick="deleteProperty(${property.id})">Delete</button>
+                    <hr>
+                </div>
+            `;
+        });
+        document.getElementById("propertyList").innerHTML = html;
+    });
+}
+
+
+// ---------------- ADD PROPERTY (POST) ----------------
+document.getElementById("addForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    fetch("/properties/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: document.getElementById("title").value,
+            location: document.getElementById("location").value,
+            rent: document.getElementById("rent").value,
+            description: document.getElementById("description").value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Property Added");
+        loadProperties();
+    });
+});
+
+
+// ---------------- DELETE PROPERTY ----------------
+function deleteProperty(id) {
+    fetch(`/properties/${id}/`, {
+        method: "DELETE"
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Property Deleted");
+        loadProperties();
+    });
+}
+
+
+// ---------------- EDIT PROPERTY (PUT) ----------------
+function editProperty(id) {
+    let newTitle = prompt("Enter new title:");
+    let newRent = prompt("Enter new rent:");
+
+    fetch(`/properties/${id}/`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: newTitle,
+            rent: newRent
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Property Updated");
+        loadProperties();
+    });
+}
+
+
+// Load properties when page opens
+loadProperties();
+
+</script>
+
+</body>
+</html>

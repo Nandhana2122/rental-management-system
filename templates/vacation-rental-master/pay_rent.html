@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pay Rent</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .payment-box {
+            background: #ffffff;
+            padding: 30px;
+            width: 360px;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .payment-box h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .payment-box p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .amount-input {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .amount-input label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .amount-input input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        #rzp-button1 {
+            background: #4facfe;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        #rzp-button1:hover {
+            background: #2e86de;
+            transform: translateY(-2px);
+        }
+
+        .secure {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="payment-box">
+    <h2>Pay Rent</h2>
+    <p>Complete your rent payment securely using Razorpay</p>
+
+    <!-- AMOUNT INPUT -->
+    <div class="amount-input">
+        <label>Enter Amount (₹)</label>
+        <input type="number" id="amountInput" placeholder="Enter rent amount" min="1">
+    </div>
+
+    <!-- DISPLAY AMOUNT -->
+    <div class="amount">
+        Amount: ₹<span id="displayAmount">0</span>
+    </div>
+
+    <button id="rzp-button1">Pay Now</button>
+
+    <div class="secure">
+        🔒 100% Secure Payment
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    const amountInput = document.getElementById("amountInput");
+    const displayAmount = document.getElementById("displayAmount");
+
+    // Update displayed amount live
+    amountInput.addEventListener("input", function () {
+        displayAmount.innerText = this.value || 0;
+    });
+
+    document.getElementById('rzp-button1').onclick = function (e) {
+        e.preventDefault();
+
+        let amount = amountInput.value;
+
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid amount");
+            return;
+        }
+
+        var options = {
+            "key": "{{ razorpay_key }}",
+            "amount": amount * 100,   // Razorpay uses paise
+            "currency": "INR",
+            "name": "RentEase",
+            "description": "Rent Payment",
+            "handler": function (response) {
+                alert("Payment Successful!");
+                console.log(response);
+            }
+        };
+
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    };
+</script>
+
+</body>
+</html>
